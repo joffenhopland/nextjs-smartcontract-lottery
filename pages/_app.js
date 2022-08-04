@@ -1,7 +1,12 @@
-import '../styles/globals.css'
+import "../styles/globals.css"
+import { MoralisProvider, moralisProvider } from "react-moralis"
 
 function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />
+    return (
+        <MoralisProvider initializeOnMount={false}>
+            <Component {...pageProps} />
+        </MoralisProvider>
+    )
 }
 
 export default MyApp
