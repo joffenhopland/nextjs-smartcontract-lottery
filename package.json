@@ -1,5 +1,5 @@
 {
-  "name": "nextjs-smartcontract-lottery-fcc",
+  "name": "nextjs-smartcontract-lottery",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -11,13 +11,16 @@
   "dependencies": {
     "@walletconnect/web3-provider": "^1.8.0",
     "@web3auth/web3auth": "^1.1.4",
+    "@web3uikit/core": "^0.1.4",
+    "@web3uikit/icons": "^0.1.4",
+    "@web3uikit/web3": "^0.1.4",
     "magic-sdk": "^8.1.1",
     "moralis": "^1.11.0",
     "next": "12.1.5",
     "react": "18.0.0",
     "react-dom": "18.0.0",
     "react-moralis": "^1.4.0",
-    "web3uikit": "^0.1.159"
+    "web3uikit": "^1.0.2"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.4",
