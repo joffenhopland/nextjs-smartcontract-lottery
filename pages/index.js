@@ -15,7 +15,9 @@ export default function Home() {
             </Head>
             {/* <ManualHeader /> */}
             <Header />
-            <LotteryEntrance />
+            <div className="grid place-items-center h-4/6">
+                <LotteryEntrance />
+            </div>
         </div>
     )
 }

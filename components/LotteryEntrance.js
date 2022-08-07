@@ -4,6 +4,9 @@ import { abi, contractAddresses } from "../constants"
 import { ethers } from "ethers"
 import { useNotification } from "@web3uikit/core"
 import { BiBell } from "react-icons"
+import EthIcon from "/public/Ethereum-ETH-icon.png"
+import favicon from "../public/favicon.ico"
+import Image from "next/image"
 
 export default function LotteryEntrance() {
     const { Moralis, isWeb3Enabled, chainId: chainIdHex } = useMoralis()
@@ -16,8 +19,14 @@ export default function LotteryEntrance() {
     // console.log(`rafflAddress: ${raffleAddress}`)
 
     const [entranceFee, setEntranceFee] = useState("0")
+    const [numPlayers, setNumPlayers] = useState("0")
+    const [recentWinner, setRecentWinner] = useState("0")
 
-    const { runContractFunction: enterRaffle } = useWeb3Contract({
+    const {
+        runContractFunction: enterRaffle,
+        isLoading,
+        isFetching,
+    } = useWeb3Contract({
         abi: abi,
         contractAddress: raffleAddress,
         functionName: "enterRaffle",
@@ -32,12 +41,32 @@ export default function LotteryEntrance() {
         params: {},
     })
 
+    const { runContractFunction: getNumberOfPlayers } = useWeb3Contract({
+        abi: abi,
+        contractAddress: raffleAddress, // specify the networkId
+        functionName: "getNumberOfPlayers",
+        params: {},
+    })
+
+    const { runContractFunction: getRecentWinner } = useWeb3Contract({
+        abi: abi,
+        contractAddress: raffleAddress, // specify the networkId
+        functionName: "getRecentWinner",
+        params: {},
+    })
+
+    async function updateUI() {
+        const entranceFeeFromCall = (await getEntranceFee())?.toString() || ""
+        const numPlayersFromCall = (await getNumberOfPlayers())?.toString() || ""
+        const recentWinnerFromCall = await getRecentWinner()
+
+        setEntranceFee(entranceFeeFromCall)
+        setNumPlayers(numPlayersFromCall)
+        setRecentWinner(recentWinnerFromCall)
+    }
+
     useEffect(() => {
         if (isWeb3Enabled) {
-            async function updateUI() {
-                const entranceFeeFromCall = (await getEntranceFee())?.toString() || ""
-                setEntranceFee(entranceFeeFromCall)
-            }
             updateUI()
         }
     }, [isWeb3Enabled])
@@ -45,6 +74,7 @@ export default function LotteryEntrance() {
     const handleSuccess = async function (tx) {
         await tx.wait(1)
         handleNewNotification(tx)
+        updateUI()
     }
 
     const handleNewNotification = function () {
@@ -58,24 +88,50 @@ export default function LotteryEntrance() {
     }
 
     return (
-        <div>
-            Hi from Lottery Entrance{" "}
+        <div className="bg-neutral-50 rounded-2xl min-w-96 p-2 grid place-items-center shadow-lg">
+            {/* Hi from Lottery Entrance{" "} */}
             {raffleAddress ? (
-                <div>
-                    <button
-                        onClick={async function () {
-                            await enterRaffle({
-                                onSuccess: handleSuccess,
-                                onError: (error) => console.log(error),
-                            })
-                        }}
-                    >
-                        Enter Raffle
-                    </button>
-                    Entrance Fee: {ethers.utils.formatUnits(entranceFee, "ether")} ETH
+                <div className="p-5 grid place-items-center">
+                    <div className="py-2 px-4 font-normal text-xl">
+                        Entrance fee:
+                        <span className="font-semibold ml-2">
+                            {" "}
+                            <Image src={EthIcon} alt="ETH Icon" width={21} height={21} />
+                            <span> </span>
+                            {ethers.utils.formatUnits(entranceFee, "ether")} ETH
+                        </span>
+                    </div>
+
+                    <div className="py-6">
+                        <button
+                            className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-4 rounded ml-auto shadow-md"
+                            onClick={async function () {
+                                await enterRaffle({
+                                    onSuccess: handleSuccess,
+                                    onError: (error) => console.log(error),
+                                })
+                            }}
+                            disabled={isLoading || isFetching}
+                        >
+                            {isLoading || isFetching ? (
+                                <div className="animate-spin spinner-border h-8 w-8 border-b-2 rounded-full"></div>
+                            ) : (
+                                <div>Enter Raffle</div>
+                            )}
+                        </button>
+                    </div>
+                    <div className="pt-2 px-4 text-md">
+                        Current number of players: <span className="font-bold">{numPlayers}</span>
+                    </div>
+                    <div className="pt-2 px-4 text-md">The most previous winner was</div>
+                    <div className="text-[#2e7daf]">{recentWinner}</div>
                 </div>
             ) : (
-                <div>No Raffle Address Detected</div>
+                <div>
+                    <div className="p-6 px-5 grid place-items-center font-semibold">
+                        Please connect your wallet!
+                    </div>
+                </div>
             )}
         </div>
     )
