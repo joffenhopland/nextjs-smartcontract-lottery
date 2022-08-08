@@ -5,18 +5,16 @@ import { ethers } from "ethers"
 import { useNotification } from "@web3uikit/core"
 import { BiBell } from "react-icons"
 import EthIcon from "/public/Ethereum-ETH-icon.png"
-import favicon from "../public/favicon.ico"
 import Image from "next/image"
 
 export default function LotteryEntrance() {
     const { Moralis, isWeb3Enabled, chainId: chainIdHex } = useMoralis()
     const chainId = parseInt(chainIdHex)
+    // console.log(`chainId: ${chainId}`)
     const raffleAddress = chainId in contractAddresses ? contractAddresses[chainId][0] : null
+    // console.log(`rafflAddress: ${raffleAddress}`)
 
     const dispatch = useNotification()
-    // console.log(`chainId: ${chainId}`)
-
-    // console.log(`rafflAddress: ${raffleAddress}`)
 
     const [entranceFee, setEntranceFee] = useState("0")
     const [numPlayers, setNumPlayers] = useState("0")
@@ -24,6 +22,7 @@ export default function LotteryEntrance() {
 
     const {
         runContractFunction: enterRaffle,
+        data: enterTxResponse,
         isLoading,
         isFetching,
     } = useWeb3Contract({
@@ -59,7 +58,6 @@ export default function LotteryEntrance() {
         const entranceFeeFromCall = (await getEntranceFee())?.toString() || ""
         const numPlayersFromCall = (await getNumberOfPlayers())?.toString() || ""
         const recentWinnerFromCall = await getRecentWinner()
-
         setEntranceFee(entranceFeeFromCall)
         setNumPlayers(numPlayersFromCall)
         setRecentWinner(recentWinnerFromCall)
@@ -71,12 +69,6 @@ export default function LotteryEntrance() {
         }
     }, [isWeb3Enabled])
 
-    const handleSuccess = async function (tx) {
-        await tx.wait(1)
-        handleNewNotification(tx)
-        updateUI()
-    }
-
     const handleNewNotification = function () {
         dispatch({
             type: "info",
@@ -85,6 +77,12 @@ export default function LotteryEntrance() {
             position: "topR",
             icon: BiBell,
         })
+    }
+
+    const handleSuccess = async function (tx) {
+        await tx.wait(1)
+        updateUI()
+        handleNewNotification(tx)
     }
 
     return (
@@ -116,7 +114,7 @@ export default function LotteryEntrance() {
                             {isLoading || isFetching ? (
                                 <div className="animate-spin spinner-border h-8 w-8 border-b-2 rounded-full"></div>
                             ) : (
-                                <div>Enter Raffle</div>
+                                <div>Enter Lottery</div>
                             )}
                         </button>
                     </div>
@@ -129,7 +127,7 @@ export default function LotteryEntrance() {
             ) : (
                 <div>
                     <div className="p-6 px-5 grid place-items-center font-semibold">
-                        Please connect your wallet!
+                        Please connect to a supported chain!
                     </div>
                 </div>
             )}
