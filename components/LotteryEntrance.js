@@ -3,7 +3,7 @@ import { useMoralis, useWeb3Contract } from "react-moralis"
 import { abi, contractAddresses } from "../constants"
 import { ethers } from "ethers"
 import { useNotification } from "@web3uikit/core"
-import { BiBell } from "react-icons"
+// import { BiBell } from "react-icons"
 import EthIcon from "/public/Ethereum-ETH-icon.png"
 import Image from "next/image"
 
